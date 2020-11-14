@@ -1,8 +1,10 @@
 using System;
 using CommandLine;
 using System.IO.Ports;
+using System.Net;
 using System.Net.Sockets;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace sttnet
 {
@@ -16,9 +18,12 @@ namespace sttnet
         public string delimiter { get; set; }      
         [Option('b', "debug",Default = false ,Required = false)]
         public bool debug { get; set; }              
+        [Option('l', "listen",Required = false)]
+        public int listen { get; set; }         
         SerialPort srcPort = new SerialPort();
         
         List<UdpClient> UdpClientsList = new List<UdpClient>();
+        UdpClient listenPort;
 
         public Transporter()
         {
@@ -31,6 +36,11 @@ namespace sttnet
             if (this.delimiter == null)
             {
                 this.delimiter = System.Environment.NewLine;
+            }
+            if (this.listen != 0)
+            {
+                listenPort = new UdpClient(this.listen);
+                var t = System.Threading.Tasks.Task.Factory.StartNew(UdpRecieve);
             }
         }
         void genSrcSerialPort()
@@ -68,6 +78,16 @@ namespace sttnet
             foreach (var f in this.UdpClientsList)
             {
                 f.Send(sendBytes,sendBytes.Length);
+            }
+        }
+
+        void UdpRecieve()
+        {
+            var ip = new IPEndPoint(IPAddress.Any, 0);    
+            while (true)
+            {
+                Byte[] receiveBytes = this.listenPort.Receive(ref ip);
+                srcPort.Write(receiveBytes,0,receiveBytes.Length);
             }
         }
     }
