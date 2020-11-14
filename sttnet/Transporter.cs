@@ -40,7 +40,7 @@ namespace sttnet
             if (this.listen != 0)
             {
                 listenPort = new UdpClient(this.listen);
-                var t = System.Threading.Tasks.Task.Factory.StartNew(UdpRecieve);
+                var t = Task.Factory.StartNew(UdpRecieve);
             }
         }
         void genSrcSerialPort()
@@ -87,6 +87,10 @@ namespace sttnet
             while (true)
             {
                 Byte[] receiveBytes = this.listenPort.Receive(ref ip);
+                if (this.debug)
+                {
+                    Console.WriteLine("UDP Recieved: " + System.Text.Encoding.ASCII.GetString(receiveBytes));
+                }
                 srcPort.Write(receiveBytes,0,receiveBytes.Length);
             }
         }
