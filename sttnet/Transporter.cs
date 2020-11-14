@@ -12,6 +12,8 @@ namespace sttnet
         public string port { get; set; }
         [Option('u', "udp", Required = false)]
         public string udp { get; set; }        
+        [Option('d', "delimiter", Required = false)]
+        public string delimiter { get; set; }                
         SerialPort srcPort = new SerialPort();
         
         List<UdpClient> UdpClientsList = new List<UdpClient>();
@@ -24,6 +26,10 @@ namespace sttnet
         {
             genSrcSerialPort();
             genUdpPortsList();
+            if (this.delimiter == null)
+            {
+                this.delimiter = System.Environment.NewLine;
+            }
         }
         void genSrcSerialPort()
         {
@@ -50,8 +56,9 @@ namespace sttnet
         void DataReceivedHandler(object sender,SerialDataReceivedEventArgs e)
         {
             var sp = (SerialPort)sender;
-            var str = sp.ReadLine();
-            Byte[] sendBytes = System.Text.Encoding.ASCII.GetBytes(str);
+            var str = sp.ReadTo(this.delimiter);
+            // var str = sp.ReadLine();
+            Byte[] sendBytes = System.Text.Encoding.ASCII.GetBytes(str + this.delimiter);
             foreach (var f in this.UdpClientsList)
             {
                 f.Send(sendBytes,sendBytes.Length);
