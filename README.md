@@ -23,7 +23,12 @@ sttnet needs dotnet sdk for builds or needs runtime for execute.
 * [Windows 10](https://docs.microsoft.com/ja-jp/dotnet/core/install/windows?tabs=netcore31)
 
 ### Example
-If you want to send UDP for 192.168.1.2:50001 from serial port "COM5".
+* Send UDP for 192.168.1.2:50001 from serial port "COM5"
 ```
 sttnet -p COM5 -u 192.168.1.2:50001
+```
+
+* Send UDP Multiple IP
+```
+sttnet -p COM5 -u 192.168.1.2:50001,192.168.1.3:30000
 ```
